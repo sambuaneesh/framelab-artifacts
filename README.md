@@ -15,3 +15,7 @@ An experiment to evaluate how well component boundaries can be inferred using on
 ### 3. Full System Decomposition
 [decomposition-including-behavioural](./decomposition-including-behavioural/README.md)
 The primary experiment combining both sequence diagrams and static code analysis to propose an optimal microservice decomposition strategy.
+
+### 4. Ground Truth Comparison
+[comparison-ground-truth](./comparison-ground-truth/README.md)
+A comparison of our LLM-based decomposition results against a ground truth implementation of the same system. (Note that calling this ground truth is just my assumption, I am not sure if this is the best way to do it)
