@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behavioral Diagrams - Food Delivery Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-accent: #edf2f7;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 20px;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 350px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .stats-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .tree-navigation {
+            flex: 1;
+            padding: 1rem;
+        }
+        
+        .module-tree-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .module-toggle {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .module-toggle:hover {
+            background: var(--bg-accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .module-toggle.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .module-icon {
+            font-size: 1.2rem;
+        }
+        
+        .module-info {
+            flex: 1;
+        }
+        
+        .module-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .module-count {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+        
+        .chevron {
+            transition: transform 0.2s ease;
+        }
+        
+        .chevron.rotated {
+            transform: rotate(90deg);
+        }
+        
+        .diagram-list {
+            margin-top: 0.5rem;
+            margin-left: 2rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .diagram-list.expanded {
+            max-height: 500px;
+        }
+        
+        .diagram-item {
+            padding: 0.5rem 0.75rem;
+            margin: 0.25rem 0;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .diagram-item:hover {
+            background: var(--bg-accent);
+            transform: translateX(2px);
+        }
+        
+        .diagram-item.active {
+            background: var(--accent-color);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .diagram-type-icon {
+            font-size: 0.9rem;
+        }
+        
+        .diagram-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .content-header {
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .content-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .diagram-viewer {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .diagram-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .diagram-header {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .diagram-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .diagram-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-code {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-code:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+        
+        .btn-copy {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+        }
+        
+        .btn-copy:hover {
+            background: var(--border-color);
+        }
+        
+        .diagram-content {
+            position: relative;
+        }
+        
+        .diagram-render {
+            padding: 2rem;
+            background: var(--bg-primary);
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .code-panel {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .code-panel.expanded {
+            max-height: 500px;
+        }
+        
+        .code-header {
+            padding: 1rem 1.5rem;
+            background: #2d2d2d;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+        
+        .code-content {
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                margin: 10px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>🏗️ Architecture Docs</h1>
+                <p>Food Delivery Platform</p>
+            </div>
+            
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Modules</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">22</div>
+                        <div class="stat-label">Diagrams</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1173</div>
+                        <div class="stat-label">Lines</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tree-navigation">
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('00_system_overview')">
+                        <span class="module-icon">🏗️</span>
+                        <div class="module-info">
+                            <div class="module-name">System Overview</div>
+                            <div class="module-count">1 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-00_system_overview"></i>
+                    </button>
+                    <div class="diagram-list" id="list-00_system_overview">
+                        <div class="diagram-item" onclick="showDiagram('00_system_overview_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">System Overview Component Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('01_customer_management')">
+                        <span class="module-icon">👥</span>
+                        <div class="module-info">
+                            <div class="module-name">Customer Management</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-01_customer_management"></i>
+                    </button>
+                    <div class="diagram-list" id="list-01_customer_management">
+                        <div class="diagram-item" onclick="showDiagram('01_customer_management_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Customer Mgmt Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('01_customer_management_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Customer Mgmt Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('01_customer_management_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Customer Mgmt State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('02_order_management')">
+                        <span class="module-icon">📦</span>
+                        <div class="module-info">
+                            <div class="module-name">Order Management</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-02_order_management"></i>
+                    </button>
+                    <div class="diagram-list" id="list-02_order_management">
+                        <div class="diagram-item" onclick="showDiagram('02_order_management_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Order Mgmt Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('02_order_management_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Order Mgmt Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('02_order_management_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Order Mgmt State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('03_payment_processing')">
+                        <span class="module-icon">💳</span>
+                        <div class="module-info">
+                            <div class="module-name">Payment Processing</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-03_payment_processing"></i>
+                    </button>
+                    <div class="diagram-list" id="list-03_payment_processing">
+                        <div class="diagram-item" onclick="showDiagram('03_payment_processing_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Payment Processing Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('03_payment_processing_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Payment Processing Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('03_payment_processing_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Payment Processing State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('04_product_catalog')">
+                        <span class="module-icon">📋</span>
+                        <div class="module-info">
+                            <div class="module-name">Product Catalog</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-04_product_catalog"></i>
+                    </button>
+                    <div class="diagram-list" id="list-04_product_catalog">
+                        <div class="diagram-item" onclick="showDiagram('04_product_catalog_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Product Catalog Mgmt Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('04_product_catalog_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Product Catalog Mgmt Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('04_product_catalog_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Product Catalog Mgmt State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('05_restaurant_management')">
+                        <span class="module-icon">🍽️</span>
+                        <div class="module-info">
+                            <div class="module-name">Restaurant Management</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-05_restaurant_management"></i>
+                    </button>
+                    <div class="diagram-list" id="list-05_restaurant_management">
+                        <div class="diagram-item" onclick="showDiagram('05_restaurant_management_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Restaurant Mgmt Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('05_restaurant_management_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Restaurant Mgmt Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('05_restaurant_management_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Restaurant Mgmt State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('06_notification_service')">
+                        <span class="module-icon">📢</span>
+                        <div class="module-info">
+                            <div class="module-name">Notification Service</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-06_notification_service"></i>
+                    </button>
+                    <div class="diagram-list" id="list-06_notification_service">
+                        <div class="diagram-item" onclick="showDiagram('06_notification_service_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Notification Service Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('06_notification_service_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Notification Service Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('06_notification_service_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Notification Service State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="module-tree-item">
+                    <button class="module-toggle" onclick="toggleModule('07_identity_access_management')">
+                        <span class="module-icon">🔐</span>
+                        <div class="module-info">
+                            <div class="module-name">Identity & Access Management</div>
+                            <div class="module-count">3 diagrams</div>
+                        </div>
+                        <i class="fas fa-chevron-right chevron" id="chevron-07_identity_access_management"></i>
+                    </button>
+                    <div class="diagram-list" id="list-07_identity_access_management">
+                        <div class="diagram-item" onclick="showDiagram('07_identity_access_management_0')">
+                            <span class="diagram-type-icon" style="color: #fd7e14">🧩</span>
+                            <span class="diagram-name">Identity and Access Mgmt Component Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('07_identity_access_management_1')">
+                            <span class="diagram-type-icon" style="color: #007bff">📋</span>
+                            <span class="diagram-name">Identity and Access Mgmt Sequence Diagram</span>
+                        </div>
+                        <div class="diagram-item" onclick="showDiagram('07_identity_access_management_2')">
+                            <span class="diagram-type-icon" style="color: #28a745">🔄</span>
+                            <span class="diagram-name">Identity and Access Mgmt State Diagram</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2 class="content-title" id="content-title">Welcome to Architecture Documentation</h2>
+                <p class="content-description" id="content-description">Select a diagram from the navigation tree to explore the system architecture.</p>
+            </div>
+            
+            <div class="diagram-viewer" id="diagram-viewer">
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <h3>Select a Diagram</h3>
+                    <p>Choose any diagram from the navigation tree to view its visualization and source code.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#2d3748',
+                primaryBorderColor: '#667eea',
+                lineColor: '#4a5568',
+                secondaryColor: '#f7fafc',
+                tertiaryColor: '#ffffff'
+            },
+            flowchart: { useMaxWidth: true, htmlLabels: true },
+            sequence: { useMaxWidth: true, wrap: true, width: 150 },
+            state: { useMaxWidth: true },
+            er: { useMaxWidth: true }
+        });
+        
+        // Diagram data
+        const diagrams = {
+        "00_system_overview_0": {
+                "code": "graph TB\n    subgraph \"External Actors\"\n        Customer[Customer]\n        RestaurantStaff[Restaurant Staff]\n    end\n    \n    subgraph \"External Services\"\n        PaymentGateway[Payment Gateway]\n        NotificationGateway[Email/SMS Gateway]\n    end\n    \n    subgraph \"Food Delivery Platform\"\n        Frontend[Web / Mobile App]\n        \n        subgraph \"Backend Services\"\n            IAM[Identity & Access Management]\n            ProductCatalog[Product Catalog Management]\n            CustomerMgmt[Customer Management]\n            OrderMgmt[Order Management]\n            RestaurantMgmt[Restaurant Management]\n            NotifService[Notification Service]\n            PaymentSvc[Payment Processing]\n        end\n    end\n    \n    %% User to Frontend Interactions\n    Customer -->|Browses, Orders, Manages Profile| Frontend\n    RestaurantStaff -->|Manages Menu & Orders| RestaurantMgmt\n    \n    %% Frontend to Backend Interactions\n    Frontend -->|Authenticates & Authorizes| IAM\n    Frontend -->|Browses Products & Categories| ProductCatalog\n    Frontend -->|Places & Tracks Orders| OrderMgmt\n    Frontend -->|Manages Profile & Subscriptions| CustomerMgmt\n    \n    %% Core Service Interactions\n    OrderMgmt -->|Checks Stock & Price| ProductCatalog\n    OrderMgmt -->|Links Order to Customer| CustomerMgmt\n    OrderMgmt -->|Initiates Payment| PaymentSvc\n    OrderMgmt -->|Forwards Order to Restaurant| RestaurantMgmt\n    OrderMgmt -->|Sends Order Status Updates| NotifService\n    \n    %% Other Service Interactions\n    CustomerMgmt -->|Requests Restock Notifications| NotifService\n    RestaurantMgmt -->|Updates Menus & Availability| ProductCatalog\n    \n    %% Cross-Cutting Security\n    OrderMgmt -.->|Validates Token/Permissions| IAM\n    CustomerMgmt -.->|Validates Token/Permissions| IAM\n    \n    %% External System Interactions\n    PaymentSvc -->|Processes Transaction| PaymentGateway\n    NotifService -->|Sends Email / SMS| NotificationGateway",
+                "title": "System Overview - Component Diagram",
+                "description": "This diagram shows the main components of the Food Delivery Platform, how they interact with each other, and their connections to external users and systems.",
+                "type": "component"
+        },
+        "01_customer_management_0": {
+                "code": "graph TB\n    subgraph \"External Dependencies\"\n        CustomersDB[\"Customers DB<br/>(Postgres)\"]\n        MessageBus[\"Message Bus\"]\n        CatalogAPI[\"Catalog API\"]\n        IdentityAPI[\"Identity API\"]\n    end\n\n    subgraph \"Core Infrastructure\"\n        AspNetCore[\"ASP.NET Core Host\"]\n        SharedBuildingBlocks[\"Shared Building Blocks\"]\n    end\n\n    subgraph \"Customer Management Module\"\n        Config[\"Module Configuration<br/>(CustomersModuleConfiguration)\"]\n        Api[\"API Endpoints<br/>(REST API)\"]\n        Logic[\"Business Logic<br/>(CQRS Handlers, Services)\"]\n        MsgHandlers[\"Message Handlers\"]\n        Data[\"Data Access<br/>(CustomersDbContext, Repositories)\"]\n    end\n\n    %% Module Initialization and Setup\n    AspNetCore -->|\"Discovers & Initializes\"| Config\n    Config -->|\"Maps Endpoints\"| Api\n    Config -->|\"Subscribes to Message Bus\"| MsgHandlers\n    Config -->|\"Applies Migrations & Seeds Data\"| CustomersDB\n\n    %% Internal Data Flow & Logic\n    Api -->|\"Executes Commands & Queries\"| Logic\n    MsgHandlers -->|\"Triggers Logic from Events\"| Logic\n    Logic -->|\"Persists/Retrieves Data\"| Data\n\n    %% External System Interactions\n    Data -->|\"Reads/Writes Data\"| CustomersDB\n    Logic -->|\"Publishes Events\"| MessageBus\n    Logic -->|\"HTTP Calls\"| CatalogAPI\n    Logic -->|\"HTTP Calls\"| IdentityAPI\n\n    %% Shared Infrastructure Dependencies\n    Logic -.->|\"Uses CQRS, Validation\"| SharedBuildingBlocks\n    Data -.->|\"Uses Persistence Abstractions\"| SharedBuildingBlocks\n    Config -.->|\"Uses Core & Messaging\"| SharedBuildingBlocks",
+                "title": "Customer Management - Component Diagram",
+                "description": "This diagram illustrates the architecture of the Customer Management module, showing its internal components and interactions with external systems.",
+                "type": "component"
+        },
+        "01_customer_management_1": {
+                "code": "sequenceDiagram\n    actor Client\n    actor IdentityModule as Identity Module\n    participant MessageBus as Message Bus\n\n    box Customer Management Module\n        participant API as API Endpoint\n        participant Consumer as UserRegisteredConsumer\n        participant MediatR as MediatR Pipeline\n        participant CreateHandler as CreateCustomerCommandHandler\n        participant GetHandler as GetCustomerByIdHandler\n        participant Aggregate as Customer Aggregate\n        participant DomainHandlers as Domain Event Handlers\n        participant WriteDB as Postgres Write DB\n        participant ReadDB as MongoDB Read DB\n    end\n\n    participant BackgroundProcessor as Background Processor\n\n    Note over IdentityModule, Client: Two primary use cases\n\n    alt Create New Customer (Reactive Flow)\n        IdentityModule->>MessageBus: Publishes UserRegistered event\n        MessageBus->>Consumer: Delivers UserRegistered event\n        activate Consumer\n        Consumer->>Consumer: Check if user role is Customer\n        Consumer->>MediatR: SendAsync(CreateCustomer command)\n        deactivate Consumer\n\n        activate MediatR\n        MediatR->>MediatR: 1. Validate command\n        Note right of MediatR: ValidationBehavior\n        MediatR->>MediatR: 2. Begin transaction\n        Note right of MediatR: EfTxBehavior\n        MediatR->>CreateHandler: Handle(CreateCustomer command)\n        \n        activate CreateHandler\n        CreateHandler->>Aggregate: new Customer(...)\n        activate Aggregate\n        Aggregate->>Aggregate: Raises CustomerCreated<br/>domain event\n        deactivate Aggregate\n        CreateHandler->>WriteDB: Add(customer) & SaveChangesAsync()\n        \n        activate WriteDB\n        Note over WriteDB, DomainHandlers: Within same transaction\n        WriteDB->>DomainHandlers: Dispatches CustomerCreated event\n        \n        activate DomainHandlers\n        DomainHandlers->>MediatR: ScheduleAsync(CreateMongoCustomerReadModels)\n        DomainHandlers->>MessageBus: Publishes CustomerCreated integration event\n        deactivate DomainHandlers\n        \n        WriteDB-->>CreateHandler: Persistence successful\n        deactivate WriteDB\n        \n        CreateHandler-->>MediatR: Command handled\n        deactivate CreateHandler\n        \n        MediatR->>MediatR: 3. Commit transaction\n        deactivate MediatR\n\n        Note over BackgroundProcessor, ReadDB: Scheduled command runs later\n        BackgroundProcessor->>ReadDB: Inserts denormalized customer document\n\n    else Get Customer by ID (Query Flow)\n        Client->>API: GET /api/v1/customers/{id}\n        activate API\n        API->>MediatR: SendAsync(GetCustomerById query)\n        deactivate API\n\n        activate MediatR\n        MediatR->>MediatR: 1. Validate query\n        Note right of MediatR: If ID empty, returns 400\n        MediatR->>MediatR: 2. Check cache (optional)\n        MediatR->>GetHandler: Handle(GetCustomerById query)\n        \n        activate GetHandler\n        GetHandler->>ReadDB: FindAsync(customer by id)\n        activate ReadDB\n        ReadDB-->>GetHandler: Returns Customer Document\n        deactivate ReadDB\n\n        Note right of GetHandler: If not found, throws 404\n        GetHandler->>GetHandler: Maps Document to CustomerReadDto\n        GetHandler-->>MediatR: Returns GetCustomerByIdResponse\n        deactivate GetHandler\n        \n        MediatR-->>API: Returns response\n        activate API\n        API-->>Client: 200 OK with JSON body\n        deactivate API\n        deactivate MediatR\n    end",
+                "title": "Customer Management - Sequence Diagram",
+                "description": "This diagram illustrates the CQRS pattern in the Customer Management module, showing how commands (writes) and queries (reads) are handled through separate pathways.",
+                "type": "sequence"
+        },
+        "01_customer_management_2": {
+                "code": "stateDiagram-v2\n    [*] --> PendingCreation : UserRegistered event received\n\n    state PendingCreation {\n        [*] --> RoleCheck\n        RoleCheck : Check user role\n    }\n\n    PendingCreation --> Creating : User has Customer role\n    PendingCreation --> Aborted : User does not have Customer role\n\n    state Creating {\n        [*] --> Validation\n        Validation : Validate CreateCustomer command\n        Validation --> BusinessLogic : Validation Succeeded\n        BusinessLogic : Check business rules\n        Validation --> Aborted : Validation Failed\n        BusinessLogic --> Created : Business Rules Pass\n        BusinessLogic --> Aborted : Business Rules Fail\n    }\n\n    state Created {\n        [*] --> PostCreationProcesses\n        PostCreationProcesses --> SyncingReadModel : Schedule CreateMongoCustomerReadModels\n        SyncingReadModel --> Synced : Customer document created in MongoDB\n        PostCreationProcesses --> NotifyingModules : Publish CustomerCreated integration event\n        NotifyingModules --> Notified : Event published to message bus\n    }\n\n    Aborted --> [*]\n    Created --> [*]",
+                "title": "Customer Management - State Diagram",
+                "description": "This diagram represents the lifecycle of a Customer entity, focusing on the creation process and the processes that occur upon creation.",
+                "type": "state"
+        },
+        "02_order_management_0": {
+                "code": "graph TB\n    subgraph \"External Systems\"\n        PostgreSQL[PostgreSQL DB]\n        EmailService[Email Service]\n    end\n\n    subgraph \"Shared Infrastructure\"\n        MessageBroker[Message Broker]\n        CQRSBehaviors[CQRS Pipeline Behaviors]\n        Cache[In-Memory Cache]\n        LoggingService[Logging Service]\n    end\n\n    subgraph \"Other Modules\"\n        CustomerModule[Customer Management Module]\n    end\n\n    subgraph \"Order Management Module\"\n        APIEndpoints[API Endpoints]\n        CQRSHandlers[CQRS Handlers]\n        EventHandlers[Event Handlers]\n        OrdersDbContext[OrdersDbContext]\n        DataSeeder[Data Seeder]\n    end\n\n    %% External Module Interactions\n    CustomerModule -->|Publishes CustomerCreated| MessageBroker\n    MessageBroker -->|Delivers CustomerCreated| EventHandlers\n\n    %% Internal Module Flow\n    APIEndpoints -->|Forwards Commands/Queries| CQRSHandlers\n    CQRSHandlers -.->|Wrapped by| CQRSBehaviors\n    EventHandlers -->|Creates/Updates Records| OrdersDbContext\n\n    %% Shared Infrastructure Interactions\n    CQRSBehaviors -->|Manages Transactions| OrdersDbContext\n    CQRSBehaviors -->|Caches Results| Cache\n    CQRSBehaviors -->|Logs Processing| LoggingService\n    CQRSHandlers -->|Publishes Events| MessageBroker\n\n    %% External System Interactions\n    CQRSHandlers -->|Sends Notifications| EmailService\n    OrdersDbContext -->|Reads/Writes Data| PostgreSQL\n    DataSeeder -->|Populates Initial Data| PostgreSQL",
+                "title": "Order Management - Component Diagram",
+                "description": "This diagram shows the internal architecture of the Order Management module and its interactions with external systems and other modules.",
+                "type": "component"
+        },
+        "02_order_management_1": {
+                "code": "sequenceDiagram\n    actor User\n    participant C as OrdersController\n    participant MediatR as ICommandProcessor\n    participant LogB as LoggingBehavior\n    participant ValB as ValidationBehavior\n    participant TxB as EfTxBehavior\n    participant Handler as CreateOrderCommandHandler\n    participant DBContext as OrdersDbContext\n    participant Events as DomainEventPublisher\n    participant EvtHandler as OrderCreatedEventHandler\n    participant Email as IEmailService\n    participant Broker as InMemoryBroker\n    participant CacheB as CachingBehavior\n\n    User->>C: POST /api/orders\n    C->>MediatR: SendAsync(command)\n\n    Note over MediatR, Handler: MediatR Pipeline Processing\n    MediatR->>LogB: Process command\n    LogB->>LogB: Log request initiation\n    LogB->>ValB: next()\n\n    alt Validation Fails\n        ValB->>ValB: Validate command fails\n        ValB->>C: throws ValidationException\n        Note right of C: Global error handler\n        C->>User: HTTP 400 Bad Request\n    else Validation Succeeds\n        ValB->>ValB: Validate command succeeds\n        ValB->>TxB: next()\n\n        TxB->>DBContext: BeginTransaction()\n        TxB->>Handler: Handle(command)\n        Handler->>DBContext: Query products and customer\n        DBContext->>Handler: Return data\n        Handler->>Handler: Create Order entity\n        Handler->>DBContext: Add new Order\n        DBContext->>Handler: Entity tracked in memory\n        Handler->>TxB: Return control\n\n        Note over TxB, DBContext: Commit and Dispatch Events\n        TxB->>DBContext: CommitTransaction()\n        DBContext->>TxB: Changes saved\n        \n        TxB->>Events: DispatchQueuedEvents()\n        Events->>EvtHandler: Handle OrderCreated event\n        \n        par Send Confirmation Email\n            EvtHandler->>Email: SendConfirmationEmail()\n            Email->>EvtHandler: Email sent\n        and Publish Integration Event\n            EvtHandler->>Broker: PublishIntegrationEvent()\n            Broker->>EvtHandler: Event published\n        end\n        \n        EvtHandler->>Events: Event handled\n        Events->>TxB: Events dispatched\n\n        TxB->>CacheB: next()\n        CacheB->>CacheB: Invalidate relevant cache\n        CacheB->>LogB: Return result\n\n        LogB->>LogB: Log successful completion\n        LogB->>MediatR: Return result with Order ID\n\n        MediatR->>C: Return result\n        C->>User: HTTP 201 Created\n    end",
+                "title": "Order Management - Sequence Diagram",
+                "description": "This diagram illustrates the interaction between components during the 'Create a New Order' use case, including the MediatR pipeline behaviors, command handling, and event processing.",
+                "type": "sequence"
+        },
+        "02_order_management_2": {
+                "code": "stateDiagram-v2\n    direction LR\n\n    [*] --> Validation\n    state Validation <<choice>>\n    Validation --> Pending : Validation Succeeded<br/>CreateOrderCommand\n    Validation --> Rejected : Validation Failed\n\n    state Pending {\n        [*] --> PendingState\n        PendingState : Transaction begins\n        PendingState : Order entity created\n        PendingState : OrderCreated event queued\n    }\n    \n    Pending --> Created : CommitTransaction()\n    Pending --> CreationFailed : RollbackTransaction()\n\n    state Created {\n        [*] --> CreatedState\n        CreatedState : Order saved to database\n        CreatedState : OrderCreated event published\n        CreatedState : Confirmation email sent\n        CreatedState : Integration event published\n    }\n    \n    Created --> AwaitingShipment : PaymentSucceeded\n    Created --> Cancelled : PaymentFailed / CancelOrder\n\n    AwaitingShipment --> Shipped : ShipOrderCommand\n    AwaitingShipment --> Cancelled : CancelOrder\n\n    Shipped --> Delivered : ConfirmDelivery\n    Shipped --> Returned : ReturnOrder\n\n    Rejected --> [*]\n    CreationFailed --> [*]\n    Cancelled --> [*]\n    Delivered --> [*]\n    Returned --> [*]",
+                "title": "Order Management - State Diagram",
+                "description": "This diagram illustrates the primary states an order goes through, the events and commands that trigger transitions, and the key failure paths.",
+                "type": "state"
+        },
+        "03_payment_processing_0": {
+                "code": "graph TB\n    subgraph External [\"External Services & Infrastructure\"]\n        Broker[Message Broker<br/>In-Memory]\n        PostgresDB[PostgreSQL DB<br/>Write Model]\n        MongoDB[MongoDB<br/>Read Model]\n        PaymentGateway[External Payment Gateway<br/>Stripe, PayPal]\n        EmailService[External Email Service<br/>SendGrid]\n    end\n    \n    subgraph Interacting [\"Interacting Modules\"]\n        OrdersModule[Orders Module]\n    end\n    \n    subgraph PaymentModule [\"Payment Processing Module\"]\n        subgraph WriteCSide [\"CQRS Write Side\"]\n            EventSubscriber[Event Handler<br/>Subscribes to OrderPlaced]\n            ProcessPaymentCmd[Command Handler<br/>ProcessPayment]\n            WriteDbContext[PaymentWriteDbContext<br/>EF Core]\n            EventPublisher[Event Publisher<br/>Publishes PaymentSucceeded/Failed]\n        end\n        \n        subgraph ReadSide [\"CQRS Read Side\"]\n            ReadModelUpdater[Event Handler<br/>Subscribes to PaymentSucceeded]\n            GetHistoryQry[Query Handler<br/>GetPaymentHistory]\n            ReadDbContext[PaymentReadDbContext<br/>Mongo]\n        end\n        \n        subgraph ExternalInt [\"External Interfaces\"]\n            GatewayClient[Payment Gateway Client<br/>Typed HttpClient]\n            EmailClient[IEmailService]\n            GatewayProcessor[IGatewayProcessor<br/>Inter-module Commands]\n        end\n        \n        CqrsPipeline[CQRS Pipeline Behaviors<br/>EfTx, Logging, Caching]\n    end\n    \n    %% Event-Driven Payment Initiation\n    OrdersModule -->|1. Publishes OrderPlaced event| Broker\n    Broker -->|2. Delivers event| EventSubscriber\n    EventSubscriber -->|3. Dispatches ProcessPayment command| CqrsPipeline\n    \n    %% Internal Command Processing\n    CqrsPipeline -->|4. Wraps and invokes| ProcessPaymentCmd\n    ProcessPaymentCmd -->|5. Uses client to charge| GatewayClient\n    GatewayClient -->|6. Makes API call| PaymentGateway\n    ProcessPaymentCmd -->|7. Persists transaction| WriteDbContext\n    WriteDbContext -->|Writes to| PostgresDB\n    ProcessPaymentCmd -->|8. Publishes result event| EventPublisher\n    EventPublisher -->|9. Sends PaymentSucceeded/Failed event| Broker\n    \n    %% Post-Payment Event Reactions\n    Broker -->|10a. Notifies Orders Module| OrdersModule\n    Broker -->|10b. Notifies internal handler| ReadModelUpdater\n    ReadModelUpdater -->|11. Updates denormalized view| ReadDbContext\n    ReadDbContext -->|Writes to| MongoDB\n    ReadModelUpdater -->|12. Triggers receipt email| EmailClient\n    EmailClient -->|Calls| EmailService\n    \n    %% Reading Payment Data\n    GetHistoryQry -->|Fetches data from| ReadDbContext\n    \n    %% Alternative Direct Command Flow\n    OrdersModule -.->|Alt: Direct command| GatewayProcessor\n    GatewayProcessor -.->|Alt: Invokes command| CqrsPipeline",
+                "title": "Payment Processing - Component Diagram",
+                "description": "This diagram shows the architecture of the Payment Processing module, illustrating the CQRS pattern with separate write and read sides, and interactions with external services.",
+                "type": "component"
+        },
+        "03_payment_processing_1": {
+                "code": "sequenceDiagram\n    participant User\n    participant Controller as OrdersController\n    participant Pipeline as CQRS Pipeline\n    participant Validation as RequestValidationBehavior\n    participant Tx as EfTxBehavior\n    participant Handler as PlaceOrderCommandHandler\n    participant PaymentSvc as IPaymentGatewayService\n    participant DB as DbContext\n    participant Scheduler as CommandScheduler\n\n    User->>Controller: POST /api/v1/orders\n    Controller->>Pipeline: Dispatch(PlaceOrderCommand)\n\n    Note over Pipeline: Pipeline begins processing command\n\n    Pipeline->>Validation: Handle(Command)\n    alt Validation Fails\n        Validation->>Controller: throws ValidationException\n        Controller->>User: 400 Bad Request\n    else Validation Succeeds\n        Validation->>Pipeline: next()\n        Pipeline->>Tx: Handle(Command)\n        Tx->>DB: Begin Transaction\n        Tx->>Handler: Handle(PlaceOrderCommand)\n\n        Handler->>DB: Get customer & product data\n        Handler->>Handler: Create Order entity\n        Handler->>PaymentSvc: ProcessPayment(token, price)\n\n        alt Payment Fails\n            PaymentSvc->>Handler: Failure Response\n            Handler->>Tx: throws PaymentFailedException\n            Tx->>DB: Rollback Transaction\n            Tx->>Pipeline: re-throws PaymentFailedException\n            Pipeline->>Controller: throws PaymentFailedException\n            Controller->>User: 422/500 Error Response\n        else Payment Succeeds\n            PaymentSvc->>Handler: Success Response\n            Handler->>Handler: Update Order status to Paid\n            \n            Note right of Handler: Schedule post-commit actions\n            Handler->>Scheduler: ScheduleAsync(SendOrderConfirmationEmailCommand)\n            Scheduler->>Handler: Command Scheduled\n            \n            Handler->>Tx: Return OrderId\n            Tx->>DB: Commit Transaction\n            DB->>Tx: Changes Saved\n            Tx->>Pipeline: Return OrderId\n            Pipeline->>Controller: Return OrderId\n            Controller->>User: 201 Created Response\n        end\n    end\n\n    Note over User, Scheduler: Later background worker processes scheduled commands",
+                "title": "Payment Processing - Sequence Diagram",
+                "description": "This diagram illustrates the CQRS pipeline pattern for payment processing, including validation, transactional behavior, business logic execution, and interaction with external payment services.",
+                "type": "sequence"
+        },
+        "03_payment_processing_2": {
+                "code": "stateDiagram-v2\n    direction LR\n\n    [*] --> Pending : PlaceOrderCommand\n\n    Pending --> Paid : [Payment Succeeded]\n    Pending --> PaymentFailed : [Payment Failed]\n    Pending --> Cancelled : CancelOrder\n\n    PaymentFailed --> Pending : RetryPayment\n    PaymentFailed --> Cancelled : CancelOrder\n\n    Paid --> AwaitingShipment : ConfirmPayment\n    Paid --> Refunding : RequestRefund\n\n    Refunding --> Refunded : [Refund Succeeded]\n    Refunding --> Paid : [Refund Failed]\n\n    Cancelled --> [*]\n    Refunded --> [*]\n    AwaitingShipment --> [*]",
+                "title": "Payment Processing - State Diagram",
+                "description": "This diagram models the lifecycle of an Order entity as it moves through the payment process, illustrating the primary states, transitions, and conditional logic for payment success or failure.",
+                "type": "state"
+        },
+        "04_product_catalog_0": {
+                "code": "graph TB\n    subgraph External[\"External Systems\"]\n        ApiConsumer[\"API Consumer<br/>(UI/Gateway)\"]\n        EventBus[\"Event Bus\"]\n        PostgresDB[\"PostgreSQL<br/>(Write DB)\"]\n        MongoDB[\"MongoDB<br/>(Read DB)\"]\n    end\n\n    subgraph Host[\"Application Host\"]\n        ModularFramework[\"Modular Framework\"]\n        SharedKernel[\"BuildingBlocks<br/>(Shared Kernel)\"]\n    end\n\n    subgraph Other[\"Other Modules\"]\n        OtherModules[\"Other Modules<br/>(e.g., Orders)\"]\n    end\n\n    subgraph ProductCatalog[\"Product Catalog Management Module\"]\n        ApiEndpoints[\"API Endpoints\"]\n        Services[\"Business Logic / Services\"]\n        EventMapper[\"Event Mapper\"]\n        DataSeeders[\"Data Seeders\"]\n        WriteContext[\"CatalogDbContext<br/>(Write)\"]\n        ReadContext[\"CatalogReadDbContext<br/>(Read)\"]\n    end\n\n    ApiConsumer -->|HTTP Calls| ApiEndpoints\n    ApiEndpoints -->|Delegates requests| Services\n    \n    Services -->|Triggers Domain Events| EventMapper\n    EventMapper -->|Publishes Integration Events| EventBus\n    EventBus -->|Consumes Events| OtherModules\n\n    Services -->|Commands Create/Update| WriteContext\n    Services -->|Queries Read| ReadContext\n    WriteContext -->|Persists data EF Core| PostgresDB\n    ReadContext -->|Queries denormalized data| MongoDB\n    \n    ModularFramework -->|Registers Endpoints| ApiEndpoints\n    ModularFramework -->|Executes Data Seeding| DataSeeders\n    ModularFramework -->|Triggers DB Migrations| WriteContext\n    \n    DataSeeders -->|Writes initial data| WriteContext\n    \n    ApiEndpoints -.->|Uses Abstractions| SharedKernel\n    Services -.->|Uses Guards etc| SharedKernel\n    WriteContext -.->|Implements ICatalogDbContext| SharedKernel\n    DataSeeders -.->|Implements IDataSeeder| SharedKernel\n    EventMapper -.->|Implements IEventMapper| SharedKernel",
+                "title": "Product Catalog Management - Component Diagram",
+                "description": "This diagram illustrates the architecture of the Product Catalog Management module, showing the CQRS pattern with separate read and write databases and integration with other modules.",
+                "type": "component"
+        },
+        "04_product_catalog_1": {
+                "code": "sequenceDiagram\n    participant Client\n    participant API as CreateProductEndpoint\n    participant Mediator\n    participant Validation as RequestValidationBehavior\n    participant Transaction as EfTxBehavior\n    participant Handler as CreateProductHandler\n    participant DB as CatalogDbContext\n    participant Product as ProductAggregate\n    participant Cache as InvalidateCachingBehavior\n    \n    Client->>API: POST /products\n    API->>Mediator: Send CreateProductCommand\n    \n    Note over Mediator, Validation: Pipeline Step 1 Validation\n    Mediator->>Validation: Handle command\n    Validation->>Validation: Run FluentValidation rules\n    \n    alt Validation Fails\n        Validation-->>Mediator: Throws ValidationException\n        Mediator-->>API: Propagates Exception\n        API-->>Client: HTTP 400 Bad Request\n    else Validation Succeeds\n        Validation-->>Mediator: Continue pipeline\n    end\n    \n    Note over Mediator, Transaction: Pipeline Step 2 Start Transaction\n    Mediator->>Transaction: Handle command\n    Transaction->>Transaction: Begin DB Transaction\n    \n    Note over Transaction, Handler: Pipeline forwards to core logic\n    Transaction->>Handler: Handle command\n    \n    Note over Handler, DB: Handler Level Business Validation\n    Handler->>DB: FindCategoryAsync\n    DB-->>Handler: Returns Category\n    Handler->>DB: FindBrandAsync\n    DB-->>Handler: Returns Brand\n    Handler->>DB: FindSupplierByIdAsync\n    DB-->>Handler: Returns Supplier\n    \n    alt Business Validation Fails\n        Handler-->>Transaction: Throws DomainException\n        Transaction->>Transaction: Rollback DB Transaction\n        Transaction-->>Mediator: Propagates Exception\n        Mediator-->>API: Propagates Exception\n        API-->>Client: HTTP 400/404 Response\n    else Business Validation Succeeds\n        Note over Handler, Product: Business Logic Execution\n        Handler->>Product: Product Create\n        Product-->>Handler: New Product entity with ProductCreated event\n        \n        Note over Handler, DB: Data Persistence\n        Handler->>DB: Products AddAsync\n        DB-->>Handler: Entity tracked\n        Handler->>DB: SaveChangesAsync\n        DB->>DB: Persist Product to Postgres and Dispatch ProductCreated event\n        DB-->>Handler: Save successful\n        \n        Note over Handler: Prepare Response\n        Handler->>Handler: Map entity to ProductDto and Log creation message\n        Handler-->>Transaction: Return CreateProductResponse\n    end\n    \n    Note over Transaction: Pipeline Step 3 Commit Transaction\n    Transaction->>Transaction: Commit DB Transaction\n    Transaction-->>Mediator: Return response\n    \n    Note over Mediator, Cache: Pipeline Step 4 Invalidate Cache\n    Mediator->>Cache: Handle command\n    Cache->>Cache: Invalidate stale product caches\n    Cache-->>Mediator: Return final response\n    \n    Mediator-->>API: Returns CreateProductResponse\n    API-->>Client: HTTP 201 Created ProductDto",
+                "title": "Product Catalog Management - Sequence Diagram",
+                "description": "This diagram illustrates the interaction for creating a new product, following the CQRS pattern with MediatR pipeline behaviors, validation, transaction management, and caching.",
+                "type": "sequence"
+        },
+        "04_product_catalog_2": {
+                "code": "stateDiagram-v2\n    direction LR\n\n    [*] --> PendingCreation\n    note right of PendingCreation\n        CreateProduct command initiated\n        System begins validation\n        and processing\n    end note\n\n    PendingCreation --> Available : [Validation OK]<br/>Persist Product<br/>ProductCreated event<br/>ProductView created\n    PendingCreation --> [*] : [Validation Fails]<br/>Reject\n\n    state Active {\n        Available\n        Unavailable\n\n        Available --> Unavailable : DebitStock<br/>[Stock reaches 0]<br/>ProductStockDebited event<br/>ProductView updated\n\n        Unavailable --> Available : ReplenishStock<br/>[Stock > 0]<br/>ProductStockReplenished event<br/>ProductView updated\n    }\n\n    Active --> Active : UpdateProduct<br/>Product data modified<br/>ProductUpdated event<br/>ProductView updated\n\n    Active --> Discontinued : DiscontinueProduct<br/>Marked as no longer for sale<br/>ProductView updated\n\n    Discontinued --> [*] : DeleteProduct\n    Active --> [*] : DeleteProduct",
+                "title": "Product Catalog Management - State Diagram",
+                "description": "This diagram models the lifecycle of a Product entity within the Product Catalog Management module, illustrating the primary states, transitions, and side effects like updating the ProductView read model.",
+                "type": "state"
+        },
+        "05_restaurant_management_0": {
+                "code": "graph TB\n    subgraph \"External Systems\"\n        RestaurantDB[Restaurant DB<br/>(PostgreSQL)]\n        MessageBus[Message Bus]\n        SupplierAPI[Supplier API]\n        InventorySystem[Inventory System]\n    end\n\n    subgraph \"Core Infrastructure\"\n        AspNetCore[ASP.NET Core Host]\n        SharedBuildingBlocks[Shared Building Blocks]\n    end\n\n    subgraph \"Other Modules\"\n        OrderModule[Order Management Module]\n        ProductModule[Product Catalog Module]\n    end\n\n    subgraph \"Restaurant Management Module\"\n        APIEndpoints[API Endpoints]\n        BusinessLogic[Business Logic<br/>(CQRS Handlers)]\n        EventHandlers[Event Handlers]\n        DataLayer[Data Access Layer<br/>(RestaurantDbContext)]\n        SupplierService[Supplier Service]\n    end\n\n    %% External Module Interactions\n    OrderModule -->|Publishes OrderCreated| MessageBus\n    MessageBus -->|Delivers OrderCreated| EventHandlers\n    ProductModule -->|Menu Updates| BusinessLogic\n\n    %% Internal Module Flow\n    APIEndpoints -->|Forwards Requests| BusinessLogic\n    BusinessLogic -->|Manages Data| DataLayer\n    EventHandlers -->|Processes Events| BusinessLogic\n    BusinessLogic -->|Supplier Operations| SupplierService\n\n    %% External System Interactions\n    DataLayer -->|Reads/Writes Data| RestaurantDB\n    SupplierService -->|HTTP Calls| SupplierAPI\n    BusinessLogic -->|Publishes Events| MessageBus\n    BusinessLogic -->|Inventory Updates| InventorySystem\n\n    %% Infrastructure Dependencies\n    APIEndpoints -.->|Uses Routing| AspNetCore\n    BusinessLogic -.->|Uses CQRS Pipeline| SharedBuildingBlocks\n    DataLayer -.->|Uses EF Core| SharedBuildingBlocks",
+                "title": "Restaurant Management - Component Diagram",
+                "description": "This diagram shows the architecture of the Restaurant Management module, illustrating its internal components and interactions with external systems.",
+                "type": "component"
+        },
+        "05_restaurant_management_1": {
+                "code": "sequenceDiagram\n    actor RestaurantManager as Restaurant Manager\n    participant API as SuppliersController\n    participant MediatR as MediatR Pipeline\n    participant Validation as ValidationBehavior\n    participant Transaction as EfTxBehavior\n    participant Handler as AddSupplierCommandHandler\n    participant DB as RestaurantDbContext\n    participant SupplierAggregate as Supplier Aggregate\n    participant EventPublisher as Event Publisher\n    participant MessageBus as Message Bus\n\n    RestaurantManager->>+API: POST /api/suppliers (AddSupplier command)\n    API->>+MediatR: SendAsync(AddSupplierCommand)\n\n    Note over MediatR, Validation: Pipeline Processing\n    MediatR->>+Validation: Handle(command)\n    Validation->>Validation: Validate supplier data<br/>(name, contact, credentials)\n    \n    alt Validation Fails\n        Validation-->>-MediatR: throws ValidationException\n        MediatR-->>-API: Propagates exception\n        API-->>-RestaurantManager: HTTP 400 Bad Request\n    else Validation Succeeds\n        Validation-->>-MediatR: Continue pipeline\n    end\n\n    MediatR->>+Transaction: Handle(command)\n    Transaction->>Transaction: Begin DB Transaction\n    Transaction->>+Handler: Handle(command)\n\n    Note over Handler, DB: Business Logic Execution\n    Handler->>+DB: CheckSupplierExists(email/name)\n    DB-->>-Handler: Returns existence check\n    \n    alt Supplier Already Exists\n        Handler-->>-Transaction: throws BusinessException\n        Transaction->>Transaction: Rollback transaction\n        Transaction-->>-MediatR: Propagates exception\n        MediatR-->>-API: Propagates exception\n        API-->>-RestaurantManager: HTTP 409 Conflict\n    else Supplier Validation Passes\n        Handler->>+SupplierAggregate: Create(name, contact, credentials)\n        SupplierAggregate->>SupplierAggregate: Raises SupplierAdded<br/>domain event\n        SupplierAggregate-->>-Handler: New Supplier entity\n\n        Handler->>+DB: Suppliers.AddAsync(supplier)\n        DB-->>-Handler: Entity tracked\n        Handler->>+DB: SaveChangesAsync()\n        \n        DB->>DB: Persist supplier to database\n        DB->>+EventPublisher: Dispatch SupplierAdded event\n        EventPublisher->>+MessageBus: Publish SupplierAdded integration event\n        MessageBus-->>-EventPublisher: Event published\n        EventPublisher-->>-DB: Event processed\n        DB-->>-Handler: Save successful\n\n        Handler-->>-Transaction: Return SupplierId\n    end\n\n    Transaction->>Transaction: Commit transaction\n    Transaction-->>-MediatR: Return response\n    MediatR-->>-API: Returns AddSupplierResponse\n    API-->>-RestaurantManager: HTTP 201 Created (SupplierId)\n\n    Note over MessageBus: Other modules notified<br/>of new supplier",
+                "title": "Restaurant Management - Sequence Diagram",
+                "description": "This diagram illustrates the sequence for managing supplier operations in the Restaurant Management module, following the CQRS pattern.",
+                "type": "sequence"
+        },
+        "05_restaurant_management_2": {
+                "code": "stateDiagram-v2\n    direction LR\n\n    [*] --> Proposed : AddSupplierCommand\n\n    state \"Supplier Lifecycle\" as lifecycle {\n        Proposed --> Active : save()<br/>[Validation & Tx Succeeds]\n        Proposed --> [*] : reject()<br/>[Validation Fails or Tx Rolls Back]\n\n        Active --> Active : UpdateSupplierCommand\n        Active --> Inactive : DeactivateSupplierCommand\n        Active --> Deleted : DeleteSupplierCommand\n\n        Inactive --> Active : ReactivateSupplierCommand\n        Inactive --> Deleted : PurgeCommand\n    }\n\n    Deleted --> [*]",
+                "title": "Restaurant Management - State Diagram",
+                "description": "This diagram illustrates the lifecycle of a Supplier entity within the Restaurant Management module, showing the different states and transitions.",
+                "type": "state"
+        },
+        "06_notification_service_0": {
+                "code": "graph TB\n    subgraph \"External Services\"\n        EmailGateway[Email Gateway<br/>(SendGrid, SMTP)]\n        SMSGateway[SMS Gateway<br/>(Twilio, etc.)]\n        PushService[Push Notification Service<br/>(Firebase, APNS)]\n        NotificationDB[Notification DB<br/>(PostgreSQL)]\n    end\n\n    subgraph \"Message Infrastructure\"\n        MessageBus[Message Bus]\n        EventStore[Event Store]\n    end\n\n    subgraph \"Other Modules\"\n        OrderModule[Order Management]\n        CustomerModule[Customer Management]\n        ProductModule[Product Catalog]\n    end\n\n    subgraph \"Notification Service Module\"\n        APIEndpoints[API Endpoints]\n        NotificationHandlers[Notification Handlers]\n        EventSubscribers[Event Subscribers]\n        \n        subgraph \"Core Services\"\n            EmailService[Email Service]\n            SMSService[SMS Service]\n            PushNotificationService[Push Notification Service]\n            TemplateEngine[Template Engine]\n        end\n        \n        subgraph \"Data Layer\"\n            NotificationRepository[Notification Repository]\n            SubscriptionRepository[Subscription Repository]\n            NotificationDbContext[NotificationDbContext]\n        end\n    end\n\n    %% Inter-Module Event Flow\n    OrderModule -->|OrderCreated, OrderShipped| MessageBus\n    CustomerModule -->|CustomerRegistered| MessageBus\n    ProductModule -->|ProductRestocked| MessageBus\n    MessageBus -->|Event Delivery| EventSubscribers\n\n    %% Internal Processing Flow\n    EventSubscribers -->|Triggers Notifications| NotificationHandlers\n    APIEndpoints -->|Direct Requests| NotificationHandlers\n    NotificationHandlers -->|Email Notifications| EmailService\n    NotificationHandlers -->|SMS Notifications| SMSService\n    NotificationHandlers -->|Push Notifications| PushNotificationService\n    \n    %% Template and Data Management\n    NotificationHandlers -->|Render Templates| TemplateEngine\n    NotificationHandlers -->|Store Records| NotificationRepository\n    NotificationHandlers -->|Manage Subscriptions| SubscriptionRepository\n\n    %% Data Persistence\n    NotificationRepository -->|Notification History| NotificationDbContext\n    SubscriptionRepository -->|User Preferences| NotificationDbContext\n    NotificationDbContext -->|Read/Write Data| NotificationDB\n\n    %% External Service Integrations\n    EmailService -->|Send Emails| EmailGateway\n    SMSService -->|Send SMS| SMSGateway\n    PushNotificationService -->|Send Push| PushService\n\n    %% Event Publishing\n    NotificationHandlers -->|Notification Events| MessageBus\n    NotificationHandlers -->|Audit Events| EventStore",
+                "title": "Notification Service - Component Diagram",
+                "description": "This diagram shows the architecture of the Notification Service module, illustrating its internal components and interactions with external communication services.",
+                "type": "component"
+        },
+        "06_notification_service_1": {
+                "code": "sequenceDiagram\n    participant ProductModule as Product Catalog Module\n    participant MessageBus as Message Bus\n    participant EventSubscriber as RestockEventSubscriber\n    participant Handler as SendRestockNotificationHandler\n    participant SubscriptionRepo as SubscriptionRepository\n    participant TemplateEngine as Template Engine\n    participant EmailService as Email Service\n    participant DB as NotificationDbContext\n    participant EmailGateway as Email Gateway\n\n    Note over ProductModule: Product restocked\n\n    ProductModule->>+MessageBus: Publishes ProductRestocked event\n    MessageBus->>+EventSubscriber: Delivers ProductRestocked event\n    \n    EventSubscriber->>EventSubscriber: Extract product information<br/>(productId, name, etc.)\n    EventSubscriber->>+Handler: Execute SendRestockNotificationCommand\n    \n    Note over Handler, SubscriptionRepo: Find affected subscriptions\n    Handler->>+SubscriptionRepo: GetPendingSubscriptions(productId)\n    SubscriptionRepo->>+DB: Query RestockSubscriptions<br/>WHERE ProductId = productId<br/>AND IsProcessed = false\n    DB-->>-SubscriptionRepo: Returns subscription list\n    SubscriptionRepo-->>-Handler: Returns pending subscriptions\n\n    alt No pending subscriptions\n        Handler-->>-EventSubscriber: No notifications to send\n        EventSubscriber-->>-MessageBus: Event processing complete\n    else Has pending subscriptions\n        loop For each subscription\n            Note over Handler, TemplateEngine: Generate notification content\n            Handler->>+TemplateEngine: RenderTemplate(restockTemplate, {product, customer})\n            TemplateEngine-->>-Handler: Returns formatted email content\n\n            Note over Handler, EmailService: Send notification\n            Handler->>+EmailService: SendEmailAsync(to, subject, content)\n            EmailService->>+EmailGateway: Send email via external service\n            EmailGateway-->>-EmailService: Email sent confirmation\n            EmailService-->>-Handler: Notification sent\n\n            Note over Handler, SubscriptionRepo: Mark subscription as processed\n            Handler->>+SubscriptionRepo: MarkAsProcessed(subscriptionId)\n            SubscriptionRepo->>+DB: UPDATE RestockSubscription<br/>SET IsProcessed = true, ProcessedAt = now<br/>WHERE Id = subscriptionId\n            DB-->>-SubscriptionRepo: Update successful\n            SubscriptionRepo-->>-Handler: Subscription updated\n\n            Note over Handler, DB: Log notification record\n            Handler->>+DB: INSERT NotificationLog<br/>(type, recipient, status, sentAt)\n            DB-->>-Handler: Log entry created\n        end\n\n        Handler-->>-EventSubscriber: All notifications processed\n        EventSubscriber->>+MessageBus: Publish RestockNotificationsProcessed event\n        MessageBus-->>-EventSubscriber: Event published\n        EventSubscriber-->>-MessageBus: Event processing complete\n    end\n\n    Note over MessageBus: Other modules may react<br/>to notification events",
+                "title": "Notification Service - Sequence Diagram",
+                "description": "This diagram illustrates the sequence for processing restock notifications, showing how the service responds to product restock events and manages subscription processing.",
+                "type": "sequence"
+        },
+        "06_notification_service_2": {
+                "code": "stateDiagram-v2\n    direction LR\n\n    [*] --> PendingNotification : Customer subscribes<br/>to restock\n    \n    state PendingNotification {\n        PendingNotification : IsProcessed = false\n    }\n\n    PendingNotification --> Processed : SendRestockNotification<br/>[!IsProcessed]<br/>subscription.Process()\n    \n    state Processed {\n        Processed : IsProcessed = true\n        Processed : RestockNotificationProcessed event raised\n    }\n\n    PendingNotification --> PendingNotification : SendRestockNotification<br/>[IsProcessed]<br/>throw Exception\n    \n    note left of PendingNotification\n        If already processed, exception thrown\n        and state remains unchanged\n    end note\n\n    Processed --> [*] : Notification sent<br/>and recorded",
+                "title": "Notification Service - State Diagram",
+                "description": "This diagram illustrates the lifecycle of the RestockSubscription entity within the Notification Service, showing the states and transitions as triggered by notification commands.",
+                "type": "state"
+        },
+        "07_identity_access_management_0": {
+                "code": "graph TB\n    subgraph \"External Services\"\n        IdentityDB[Identity DB<br/>(PostgreSQL)]\n        EmailService[Email Service<br/>(SMTP/SendGrid)]\n        RedisCache[Redis Cache<br/>(Session Store)]\n        AuditDB[Audit DB<br/>(PostgreSQL)]\n    end\n\n    subgraph \"Security Infrastructure\"\n        JWTService[JWT Service]\n        CryptoService[Cryptography Service]\n        RateLimiter[Rate Limiter]\n    end\n\n    subgraph \"Other Modules\"\n        CustomerModule[Customer Management]\n        OrderModule[Order Management]\n        AdminModule[Admin Module]\n    end\n\n    subgraph \"Identity & Access Management Module\"\n        subgraph \"Authentication\"\n            AuthController[Auth Controller]\n            LoginHandler[Login Handler]\n            RegisterHandler[Register Handler]\n            PasswordService[Password Service]\n            TokenService[Token Service]\n        end\n\n        subgraph \"Authorization\"\n            AuthorizationService[Authorization Service]\n            RoleService[Role Service]\n            PermissionService[Permission Service]\n            PolicyEngine[Policy Engine]\n        end\n\n        subgraph \"User Management\"\n            UserController[User Controller]\n            UserService[User Service]\n            ProfileService[Profile Service]\n            AccountService[Account Service]\n        end\n\n        subgraph \"Data Layer\"\n            IdentityDbContext[IdentityDbContext]\n            UserRepository[User Repository]\n            RoleRepository[Role Repository]\n            SessionRepository[Session Repository]\n        end\n    end\n\n    %% External Authentication Flow\n    AuthController -->|User Login/Register| LoginHandler\n    AuthController -->|User Registration| RegisterHandler\n    LoginHandler -->|Validate Credentials| PasswordService\n    LoginHandler -->|Generate Tokens| TokenService\n    RegisterHandler -->|Send Verification| EmailService\n\n    %% Authorization Flow\n    CustomerModule -->|Authorization Check| AuthorizationService\n    OrderModule -->|Permission Check| AuthorizationService\n    AdminModule -->|Role Validation| AuthorizationService\n    AuthorizationService -->|Policy Evaluation| PolicyEngine\n    AuthorizationService -->|Role Check| RoleService\n    AuthorizationService -->|Permission Check| PermissionService\n\n    %% User Management Flow\n    UserController -->|User Operations| UserService\n    UserService -->|Profile Management| ProfileService\n    UserService -->|Account Operations| AccountService\n\n    %% Data Management\n    LoginHandler -->|User Lookup| UserRepository\n    RegisterHandler -->|User Creation| UserRepository\n    RoleService -->|Role Management| RoleRepository\n    TokenService -->|Session Management| SessionRepository\n\n    %% External Dependencies\n    UserRepository -->|User Data| IdentityDbContext\n    RoleRepository -->|Role Data| IdentityDbContext\n    SessionRepository -->|Session Data| IdentityDbContext\n    IdentityDbContext -->|Persistent Storage| IdentityDB\n\n    %% Security Services\n    PasswordService -->|Hash/Verify| CryptoService\n    TokenService -->|JWT Operations| JWTService\n    TokenService -->|Token Cache| RedisCache\n    LoginHandler -->|Rate Limiting| RateLimiter\n\n    %% Audit and Monitoring\n    LoginHandler -->|Login Events| AuditDB\n    RegisterHandler -->|Registration Events| AuditDB\n    UserService -->|User Changes| AuditDB",
+                "title": "Identity and Access Management - Component Diagram",
+                "description": "This diagram shows the architecture of the Identity and Access Management module, illustrating authentication, authorization, and user management components.",
+                "type": "component"
+        },
+        "07_identity_access_management_1": {
+                "code": "sequenceDiagram\n    actor User\n    participant AuthController as Auth Controller\n    participant LoginHandler as Login Handler\n    participant PasswordService as Password Service\n    participant UserRepo as User Repository\n    participant TokenService as Token Service\n    participant JWTService as JWT Service\n    participant RedisCache as Redis Cache\n    participant RateLimiter as Rate Limiter\n    participant AuditDB as Audit DB\n\n    Note over User, AuditDB: User Authentication Flow\n\n    User->>+AuthController: POST /auth/login<br/>{email, password}\n    \n    Note over AuthController, RateLimiter: Rate Limiting Check\n    AuthController->>+RateLimiter: CheckRateLimit(clientIP, email)\n    RateLimiter-->>-AuthController: Rate limit OK\n    \n    alt Rate Limit Exceeded\n        AuthController-->>User: HTTP 429 Too Many Requests\n    else Rate Limit OK\n        AuthController->>+LoginHandler: Handle(LoginCommand)\n        \n        Note over LoginHandler, UserRepo: User Validation\n        LoginHandler->>+UserRepo: FindByEmailAsync(email)\n        UserRepo-->>-LoginHandler: Returns ApplicationUser\n        \n        alt User Not Found\n            LoginHandler-->>-AuthController: UserNotFoundException\n            AuthController-->>User: HTTP 404 User Not Found\n        else User Found\n            Note over LoginHandler, PasswordService: Password Verification\n            LoginHandler->>+PasswordService: VerifyPassword(password, user.PasswordHash)\n            PasswordService-->>-LoginHandler: Password verification result\n            \n            alt Password Invalid\n                LoginHandler->>+UserRepo: IncrementFailedAttempts(userId)\n                UserRepo-->>-LoginHandler: Failed attempts updated\n                LoginHandler->>+AuditDB: LogFailedLogin(userId, IP, timestamp)\n                AuditDB-->>-LoginHandler: Event logged\n                LoginHandler-->>-AuthController: InvalidPasswordException\n                AuthController-->>User: HTTP 401 Unauthorized\n            else Password Valid\n                Note over LoginHandler, UserRepo: Account Status Check\n                alt User Account Locked\n                    LoginHandler-->>-AuthController: AccountLockedException\n                    AuthController-->>User: HTTP 423 Account Locked\n                else User Email Not Verified\n                    LoginHandler-->>-AuthController: EmailNotConfirmedException\n                    AuthController-->>User: HTTP 403 Email Not Confirmed\n                else Account Valid\n                    Note over LoginHandler, TokenService: Token Generation\n                    LoginHandler->>+TokenService: GenerateTokens(user)\n                    TokenService->>+JWTService: CreateAccessToken(user.claims)\n                    JWTService-->>-TokenService: JWT Access Token\n                    TokenService->>+JWTService: CreateRefreshToken()\n                    JWTService-->>-TokenService: Refresh Token\n                    \n                    Note over TokenService, RedisCache: Session Management\n                    TokenService->>+RedisCache: StoreSession(refreshToken, userId, expiry)\n                    RedisCache-->>-TokenService: Session stored\n                    TokenService-->>-LoginHandler: TokenResponse{accessToken, refreshToken}\n                    \n                    Note over LoginHandler, UserRepo: Update User State\n                    LoginHandler->>+UserRepo: ResetFailedAttempts(userId)\n                    UserRepo-->>-LoginHandler: Failed attempts reset\n                    LoginHandler->>+UserRepo: UpdateLastLogin(userId, timestamp)\n                    UserRepo-->>-LoginHandler: Last login updated\n                    \n                    Note over LoginHandler, AuditDB: Audit Logging\n                    LoginHandler->>+AuditDB: LogSuccessfulLogin(userId, IP, timestamp)\n                    AuditDB-->>-LoginHandler: Event logged\n                    \n                    LoginHandler-->>-AuthController: LoginResponse{tokens, user}\n                    AuthController-->>User: HTTP 200 OK<br/>{accessToken, refreshToken, userInfo}\n                end\n            end\n        end\n    end\n\n    Note over User: User stores tokens<br/>for subsequent API calls\n\n    Note over User, AuditDB: Subsequent API Request with Token\n\n    User->>+AuthController: GET /api/protected<br/>Authorization: Bearer {accessToken}\n    AuthController->>+TokenService: ValidateToken(accessToken)\n    TokenService->>+JWTService: VerifyToken(accessToken)\n    \n    alt Token Invalid/Expired\n        JWTService-->>-TokenService: TokenInvalidException\n        TokenService-->>-AuthController: Unauthorized\n        AuthController-->>User: HTTP 401 Unauthorized\n    else Token Valid\n        JWTService-->>-TokenService: Token claims\n        TokenService-->>-AuthController: User identity & claims\n        AuthController-->>User: HTTP 200 OK (Protected resource)\n    end",
+                "title": "Identity and Access Management - Sequence Diagram",
+                "description": "This diagram illustrates the user authentication and authorization flow within the Identity and Access Management module, showing token generation and validation processes.",
+                "type": "sequence"
+        },
+        "07_identity_access_management_2": {
+                "code": "stateDiagram-v2\n    direction LR\n\n    [*] --> PendingVerification : RegisterUser\n\n    PendingVerification --> Active : VerifyEmail(code)\n    note on link\n        Login attempts fail with\n        EmailNotConfirmedException\n        until this step is complete\n    end note\n\n    Active --> LoginChoice : Login(credentials)\n    state LoginChoice <<choice>>\n    LoginChoice --> Active : [Password OK]<br/>JWT Access Token generated<br/>Refresh Token generated & persisted<br/>Success event logged\n    LoginChoice --> Active : [Password Invalid]\n    LoginChoice --> Locked : [Too many failed attempts]\n\n    Active --> Inactive : UpdateUserState(Inactive)\n    note on link\n        Typically an\n        administrative action\n    end note\n\n    Locked --> Active : UnlockAccount<br/>Admin action or timeout\n    note on link\n        Can be triggered by Admin\n        or automatic timeout\n    end note\n\n    Inactive --> Active : UpdateUserState(Active)\n\n    Active --> [*] : DeleteUser\n    Inactive --> [*] : DeleteUser\n    Locked --> [*] : DeleteUser",
+                "title": "Identity and Access Management - State Diagram",
+                "description": "This diagram illustrates the lifecycle of the ApplicationUser entity within the Identity and Access Management module, showing the different user states and transitions.",
+                "type": "state"
+        }
+};
+        
+        const modules = {
+        "00_system_overview": {
+                "name": "System Overview",
+                "icon": "\ud83c\udfd7\ufe0f",
+                "description": "High-level system architecture and component interactions"
+        },
+        "01_customer_management": {
+                "name": "Customer Management",
+                "icon": "\ud83d\udc65",
+                "description": "User registration, profiles, and customer lifecycle"
+        },
+        "02_order_management": {
+                "name": "Order Management",
+                "icon": "\ud83d\udce6",
+                "description": "Order processing, tracking, and fulfillment"
+        },
+        "03_payment_processing": {
+                "name": "Payment Processing",
+                "icon": "\ud83d\udcb3",
+                "description": "Payment handling, transactions, and billing"
+        },
+        "04_product_catalog": {
+                "name": "Product Catalog",
+                "icon": "\ud83d\udccb",
+                "description": "Menu items, inventory, and product management"
+        },
+        "05_restaurant_management": {
+                "name": "Restaurant Management",
+                "icon": "\ud83c\udf7d\ufe0f",
+                "description": "Supplier management and restaurant operations"
+        },
+        "06_notification_service": {
+                "name": "Notification Service",
+                "icon": "\ud83d\udce2",
+                "description": "Email, SMS, and push notification delivery"
+        },
+        "07_identity_access_management": {
+                "name": "Identity & Access Management",
+                "icon": "\ud83d\udd10",
+                "description": "Authentication, authorization, and security"
+        }
+};
+        
+        let currentDiagram = null;
+        
+        // Module toggle functionality
+        function toggleModule(moduleId) {
+            const chevron = document.getElementById(`chevron-${moduleId}`);
+            const list = document.getElementById(`list-${moduleId}`);
+            const toggle = chevron.closest('.module-toggle');
+            
+            const isExpanded = list.classList.contains('expanded');
+            
+            // Close all other modules
+            document.querySelectorAll('.diagram-list.expanded').forEach(el => {
+                if (el.id !== `list-${moduleId}`) {
+                    el.classList.remove('expanded');
+                    const otherId = el.id.replace('list-', '');
+                    document.getElementById(`chevron-${otherId}`).classList.remove('rotated');
+                    document.querySelector(`[onclick="toggleModule('${otherId}')"]`).classList.remove('active');
+                }
+            });
+            
+            if (isExpanded) {
+                list.classList.remove('expanded');
+                chevron.classList.remove('rotated');
+                toggle.classList.remove('active');
+            } else {
+                list.classList.add('expanded');
+                chevron.classList.add('rotated');
+                toggle.classList.add('active');
+            }
+        }
+        
+        // Show diagram
+        async function showDiagram(diagramId) {
+            const diagram = diagrams[diagramId];
+            if (!diagram) return;
+            
+            // Update active state
+            document.querySelectorAll('.diagram-item.active').forEach(el => el.classList.remove('active'));
+            event.target.closest('.diagram-item').classList.add('active');
+            
+            // Update content header
+            document.getElementById('content-title').textContent = diagram.title;
+            document.getElementById('content-description').textContent = diagram.description;
+            
+            // Show loading state
+            const viewer = document.getElementById('diagram-viewer');
+            viewer.innerHTML = `
+                <div class="diagram-card">
+                    <div class="diagram-header">
+                        <h3 class="diagram-title">${diagram.title}</h3>
+                        <div class="diagram-actions">
+                            <button class="action-btn btn-code" onclick="toggleCode('${diagramId}')">
+                                <i class="fas fa-code"></i> View Code
+                            </button>
+                            <button class="action-btn btn-copy" onclick="copyCode('${diagramId}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="diagram-content">
+                        <div class="diagram-render" id="render-${diagramId}">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                                <div>Rendering diagram...</div>
+                            </div>
+                        </div>
+                        <div class="code-panel" id="code-${diagramId}">
+                            <div class="code-header">📝 Mermaid Source Code</div>
+                            <div class="code-content">${diagram.code}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            currentDiagram = diagramId;
+            
+            // Render the diagram
+            try {
+                const renderElement = document.getElementById(`render-${diagramId}`);
+                const validId = `diagram-${diagramId}-svg`;
+                const {svg} = await mermaid.render(validId, diagram.code);
+                renderElement.innerHTML = svg;
+            } catch (error) {
+                console.error('Error rendering diagram:', error);
+                document.getElementById(`render-${diagramId}`).innerHTML = `
+                    <div style="color: #e53e3e; text-align: center; padding: 2rem;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <div>Error rendering diagram</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">${error.message}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Toggle code panel
+        function toggleCode(diagramId) {
+            const codePanel = document.getElementById(`code-${diagramId}`);
+            const button = event.target.closest('.btn-code');
+            
+            if (codePanel.classList.contains('expanded')) {
+                codePanel.classList.remove('expanded');
+                button.innerHTML = '<i class="fas fa-code"></i> View Code';
+            } else {
+                codePanel.classList.add('expanded');
+                button.innerHTML = '<i class="fas fa-code"></i> Hide Code';
+            }
+        }
+        
+        // Copy code to clipboard
+        function copyCode(diagramId) {
+            const code = diagrams[diagramId].code;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Code copied to clipboard!');
+            });
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Architecture Documentation loaded');
+            console.log(`📊 ${Object.keys(diagrams).length} diagrams available`);
+        });
+    </script>
+</body>
+</html>
