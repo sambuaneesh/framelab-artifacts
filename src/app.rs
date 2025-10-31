@@ -2,6 +2,7 @@ use yew::prelude::*;
 use gloo_net::http::Request;
 use std::collections::HashSet;
 use crate::data::DataPoint;
+use crate::colors::ColorGenerator;
 use crate::sidebar::Sidebar;
 use crate::controls::GlobalControls;
 use crate::grid::ChartGrid;
@@ -21,6 +22,7 @@ pub struct App {
     all_tools: Vec<String>,
     selected_metric: String,
     sort_ascending: bool,
+    color_generator: ColorGenerator,
 }
 
 impl Component for App {
@@ -47,6 +49,7 @@ impl Component for App {
             all_tools: Vec::new(),
             selected_metric: "cid".to_string(),
             sort_ascending: false,
+            color_generator: ColorGenerator::new(),
         }
     }
 
@@ -59,6 +62,8 @@ impl Component for App {
                     .into_iter()
                     .collect();
                 tools.sort();
+                
+                self.color_generator.generate_tool_colors(&tools);
                 
                 self.active_tools = tools.iter().cloned().collect();
                 self.all_tools = tools;
@@ -118,6 +123,7 @@ impl Component for App {
                         tools={self.all_tools.clone()}
                         active_tools={self.active_tools.clone()}
                         on_toggle={ctx.link().callback(Msg::ToggleTool)}
+                        color_generator={Some(self.color_generator.clone())}
                     />
                     <div class="main-content">
                         <GlobalControls
@@ -129,6 +135,7 @@ impl Component for App {
                         <ChartGrid
                             data={filtered}
                             metric={self.selected_metric.clone()}
+                            color_generator={Some(self.color_generator.clone())}
                         />
                     </div>
                 </>

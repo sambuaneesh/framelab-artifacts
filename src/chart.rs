@@ -1,10 +1,13 @@
 use yew::prelude::*;
 use crate::data::DataPoint;
+use crate::colors::ColorGenerator;
 
 #[derive(Properties, PartialEq)]
 pub struct BarChartProps {
     pub data: Vec<DataPoint>,
     pub metric: String,
+    #[prop_or_default]
+    pub color_generator: Option<ColorGenerator>,
 }
 
 #[function_component(BarChart)]
@@ -42,7 +45,9 @@ pub fn bar_chart(props: &BarChartProps) -> Html {
                         0.0
                     };
                     let y = margin_top + i as f64 * (bar_height + bar_gap);
-                    let color = d.get_color();
+                    let color = props.color_generator.as_ref()
+                        .map(|cg| cg.get_color(&d.tool_variant()))
+                        .unwrap_or_else(|| "#64748b".to_string());
                     
                     html! {
                         <g>

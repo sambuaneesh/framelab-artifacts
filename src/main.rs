@@ -1,4 +1,5 @@
 mod data;
+mod colors;
 mod sidebar;
 mod controls;
 mod chart;
