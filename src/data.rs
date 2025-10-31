@@ -67,6 +67,21 @@ impl DataPoint {
     pub fn tool_variant(&self) -> String {
         format!("{} ({})", self.tool, self.variant)
     }
+
+    pub fn get_color(&self) -> &'static str {
+        match self.tool.as_str() {
+            "CHUNKING" => "#3b82f6",      // Blue
+            "DATACENTRIC" => "#8b5cf6",   // Purple
+            "GROUND_TRUTH" => "#10b981",  // Green
+            "HyDec" => "#f59e0b",         // Amber
+            "LOG2MS" => "#ef4444",        // Red
+            "MEM-CMT" => "#ec4899",       // Pink
+            "MEM-CNTR" => "#14b8a6",      // Teal
+            "MONO2MICRO" => "#f97316",    // Orange
+            "ZEROSHOT" => "#6366f1",      // Indigo
+            _ => "#64748b",               // Slate (default)
+        }
+    }
 }
 
 pub static METRICS: &[(&str, &str)] = &[

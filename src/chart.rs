@@ -42,6 +42,7 @@ pub fn bar_chart(props: &BarChartProps) -> Html {
                         0.0
                     };
                     let y = margin_top + i as f64 * (bar_height + bar_gap);
+                    let color = d.get_color();
                     
                     html! {
                         <g>
@@ -50,6 +51,7 @@ pub fn bar_chart(props: &BarChartProps) -> Html {
                                 y={format!("{}", y + bar_height / 2.0 + 4.0)}
                                 text-anchor="end"
                                 class="bar-label"
+                                fill="#9ca3af"
                             >
                                 {d.tool_variant()}
                             </text>
@@ -58,12 +60,15 @@ pub fn bar_chart(props: &BarChartProps) -> Html {
                                 y={format!("{}", y)}
                                 width={format!("{}", bar_width)}
                                 height={format!("{}", bar_height)}
+                                fill={color}
+                                rx="2"
                                 class="bar"
                             />
                             <text
                                 x={format!("{}", margin_left + bar_width + 5.0)}
                                 y={format!("{}", y + bar_height / 2.0 + 4.0)}
                                 class="bar-value"
+                                fill="#f9fafb"
                             >
                                 {format!("{:.1}", value)}
                             </text>
