@@ -151,7 +151,7 @@ body {
 
 .controls {
     background: #111827;
-    padding: 16px 24px;
+    padding: 16px 24px 16px 120px;
     border-bottom: 1px solid #1f2937;
     display: flex;
     gap: 32px;
