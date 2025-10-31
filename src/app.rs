@@ -13,6 +13,8 @@ pub enum Msg {
     ToggleTool(String),
     ChangeMetric(String),
     ChangeSortOrder(bool),
+    ToggleSidebar,
+    CloseSidebar,
 }
 
 pub struct App {
@@ -23,6 +25,7 @@ pub struct App {
     selected_metric: String,
     sort_ascending: bool,
     color_generator: ColorGenerator,
+    sidebar_open: bool,
 }
 
 impl Component for App {
@@ -50,6 +53,7 @@ impl Component for App {
             selected_metric: "cid".to_string(),
             sort_ascending: false,
             color_generator: ColorGenerator::new(),
+            sidebar_open: false,
         }
     }
 
@@ -91,6 +95,14 @@ impl Component for App {
                 self.sort_ascending = ascending;
                 true
             }
+            Msg::ToggleSidebar => {
+                self.sidebar_open = !self.sidebar_open;
+                true
+            }
+            Msg::CloseSidebar => {
+                self.sidebar_open = false;
+                true
+            }
         }
     }
 
@@ -119,10 +131,18 @@ impl Component for App {
 
             html! {
                 <>
+                    <button 
+                        class="toggle-sidebar-btn"
+                        onclick={ctx.link().callback(|_| Msg::ToggleSidebar)}
+                    >
+                        {"☰ Filters"}
+                    </button>
                     <Sidebar
                         tools={self.all_tools.clone()}
                         active_tools={self.active_tools.clone()}
                         on_toggle={ctx.link().callback(Msg::ToggleTool)}
+                        on_close={ctx.link().callback(|_| Msg::CloseSidebar)}
+                        is_open={self.sidebar_open}
                         color_generator={Some(self.color_generator.clone())}
                     />
                     <div class="main-content">
