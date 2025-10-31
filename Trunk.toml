@@ -1,0 +1,14 @@
+[build]
+target = "index.html"
+release = true
+dist = "dist"
+
+[[hooks]]
+stage = "pre_build"
+command = "sh"
+command_arguments = ["-c", "echo 'Building Wasm application'"]
+
+[[hooks]]
+stage = "post_build"
+command = "sh"
+command_arguments = ["-c", "cp web_data.json dist/"]

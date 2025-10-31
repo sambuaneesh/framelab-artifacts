@@ -1,0 +1,142 @@
+use yew::prelude::*;
+use gloo_net::http::Request;
+use std::collections::HashSet;
+use crate::data::DataPoint;
+use crate::sidebar::Sidebar;
+use crate::controls::GlobalControls;
+use crate::grid::ChartGrid;
+
+pub enum Msg {
+    DataLoaded(Vec<DataPoint>),
+    LoadError(String),
+    ToggleTool(String),
+    ChangeMetric(String),
+    ChangeSortOrder(bool),
+}
+
+pub struct App {
+    data: Option<Vec<DataPoint>>,
+    error: Option<String>,
+    active_tools: HashSet<String>,
+    all_tools: Vec<String>,
+    selected_metric: String,
+    sort_ascending: bool,
+}
+
+impl Component for App {
+    type Message = Msg;
+    type Properties = ();
+
+    fn create(ctx: &Context<Self>) -> Self {
+        ctx.link().send_future(async {
+            match Request::get("web_data.json").send().await {
+                Ok(response) => {
+                    match response.json::<Vec<DataPoint>>().await {
+                        Ok(data) => Msg::DataLoaded(data),
+                        Err(e) => Msg::LoadError(format!("Parse error: {}", e)),
+                    }
+                }
+                Err(e) => Msg::LoadError(format!("Network error: {}", e)),
+            }
+        });
+
+        Self {
+            data: None,
+            error: None,
+            active_tools: HashSet::new(),
+            all_tools: Vec::new(),
+            selected_metric: "cid".to_string(),
+            sort_ascending: false,
+        }
+    }
+
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::DataLoaded(data) => {
+                let mut tools: Vec<String> = data.iter()
+                    .map(|d| d.tool_variant())
+                    .collect::<HashSet<_>>()
+                    .into_iter()
+                    .collect();
+                tools.sort();
+                
+                self.active_tools = tools.iter().cloned().collect();
+                self.all_tools = tools;
+                self.data = Some(data);
+                self.error = None;
+                true
+            }
+            Msg::LoadError(error) => {
+                self.error = Some(error);
+                true
+            }
+            Msg::ToggleTool(tool) => {
+                if self.active_tools.contains(&tool) {
+                    self.active_tools.remove(&tool);
+                } else {
+                    self.active_tools.insert(tool);
+                }
+                true
+            }
+            Msg::ChangeMetric(metric) => {
+                self.selected_metric = metric;
+                true
+            }
+            Msg::ChangeSortOrder(ascending) => {
+                self.sort_ascending = ascending;
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        if let Some(error) = &self.error {
+            return html! {
+                <div class="error">{error}</div>
+            };
+        }
+
+        if let Some(data) = &self.data {
+            let mut filtered: Vec<DataPoint> = data.iter()
+                .filter(|d| self.active_tools.contains(&d.tool_variant()))
+                .cloned()
+                .collect();
+
+            filtered.sort_by(|a, b| {
+                let val_a = a.get_metric(&self.selected_metric);
+                let val_b = b.get_metric(&self.selected_metric);
+                if self.sort_ascending {
+                    val_a.partial_cmp(&val_b).unwrap()
+                } else {
+                    val_b.partial_cmp(&val_a).unwrap()
+                }
+            });
+
+            html! {
+                <>
+                    <Sidebar
+                        tools={self.all_tools.clone()}
+                        active_tools={self.active_tools.clone()}
+                        on_toggle={ctx.link().callback(Msg::ToggleTool)}
+                    />
+                    <div class="main-content">
+                        <GlobalControls
+                            selected_metric={self.selected_metric.clone()}
+                            sort_ascending={self.sort_ascending}
+                            on_metric_change={ctx.link().callback(Msg::ChangeMetric)}
+                            on_sort_change={ctx.link().callback(Msg::ChangeSortOrder)}
+                        />
+                        <ChartGrid
+                            data={filtered}
+                            metric={self.selected_metric.clone()}
+                        />
+                    </div>
+                </>
+            }
+        } else {
+            html! {
+                <div class="loading">{"Loading..."}</div>
+            }
+        }
+    }
+}
