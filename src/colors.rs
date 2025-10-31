@@ -60,14 +60,16 @@ impl ColorGenerator {
             }
 
             let variant_hash = Self::hash_string(variant);
-            let lightness_offset = (variant_hash % 20) as f64 - 10.0;
-            let saturation_offset = ((variant_hash / 20) % 15) as f64 - 7.5;
+            let lightness_offset = (variant_hash % 35) as f64 - 17.5;
+            let saturation_offset = ((variant_hash / 35) % 25) as f64 - 12.5;
+            let hue_offset = ((variant_hash / 70) % 15) as f64 - 7.5;
 
             let (h, s, l) = Self::hex_to_hsl(base_color);
-            let new_l = (l + lightness_offset).clamp(45.0, 75.0);
-            let new_s = (s + saturation_offset).clamp(55.0, 85.0);
+            let new_h = (h + hue_offset + 360.0) % 360.0;
+            let new_l = (l + lightness_offset).clamp(35.0, 80.0);
+            let new_s = (s + saturation_offset).clamp(50.0, 90.0);
             
-            Self::hsl_to_hex(h, new_s, new_l)
+            Self::hsl_to_hex(new_h, new_s, new_l)
         } else {
             "#64748b".to_string()
         }
