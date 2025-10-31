@@ -1,0 +1,177 @@
+.TableView {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 180px);
+}
+
+.TableView-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid #e0e0e0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.TableView-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.TableView-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.TableView-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.TableView-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+/* Sticky Header */
+.TableView-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.TableView-table th {
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #667eea;
+  background: #f8f9fa;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.TableView-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  color: #555;
+}
+
+.TableView-table tbody tr:hover {
+  background-color: #f5f7fa;
+}
+
+/* Column-specific styling */
+.col-case-study,
+.col-tool,
+.col-variant {
+  font-weight: 500;
+  color: #333;
+  background: #fafbfc;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.col-case-study {
+  left: 0;
+  min-width: 150px;
+}
+
+.col-tool {
+  left: 150px;
+  min-width: 120px;
+}
+
+.col-variant {
+  left: 270px;
+  min-width: 100px;
+}
+
+/* Sticky row header cells in tbody */
+.TableView-table tbody .col-case-study,
+.TableView-table tbody .col-tool,
+.TableView-table tbody .col-variant {
+  box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+}
+
+/* Numeric columns */
+.TableView-table td:not(.col-case-study):not(.col-tool):not(.col-variant):not(.col-\#-obs\.-ents\.-\(\%\)) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.TableView-table th:not(.col-case-study):not(.col-tool):not(.col-variant):not(.col-\#-obs\.-ents\.-\(\%\)) {
+  text-align: right;
+}
+
+/* Highlight high values */
+.TableView-table tbody tr td:nth-child(n+9) {
+  font-weight: 500;
+}
+
+/* Empty state */
+.TableView-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.TableView-empty p {
+  color: #999;
+  font-size: 1.1rem;
+}
+
+/* Scrollbar styling */
+.TableView-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.TableView-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.TableView-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.TableView-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .TableView {
+    height: calc(100vh - 300px);
+  }
+  
+  .TableView-table {
+    font-size: 0.8rem;
+  }
+  
+  .TableView-table th,
+  .TableView-table td {
+    padding: 0.5rem;
+  }
+  
+  .col-case-study,
+  .col-tool,
+  .col-variant {
+    position: static;
+    background: none;
+    box-shadow: none;
+  }
+}

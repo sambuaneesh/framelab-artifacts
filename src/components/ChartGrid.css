@@ -1,0 +1,56 @@
+.ChartGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 1rem;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+}
+
+.no-data h3 {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.no-data p {
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .ChartGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-container {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ChartGrid {
+    gap: 1rem;
+  }
+  
+  .chart-container {
+    padding: 0.5rem;
+    min-height: 400px;
+  }
+}
