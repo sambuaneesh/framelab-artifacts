@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use gloo_net::http::Request;
 use std::collections::HashSet;
+use wasm_bindgen::JsCast;
 use crate::data::DataPoint;
 use crate::colors::ColorGenerator;
 use crate::sidebar::Sidebar;
@@ -16,6 +17,8 @@ pub enum Msg {
     ToggleSidebar,
     CloseSidebar,
     HighlightVariant(Option<String>),
+    ToggleSelectVariant(String),
+    ClearSelection,
 }
 
 pub struct App {
@@ -28,6 +31,7 @@ pub struct App {
     color_generator: ColorGenerator,
     sidebar_open: bool,
     highlighted_variant: Option<String>,
+    selected_variants: Vec<String>,
 }
 
 impl Component for App {
@@ -57,6 +61,7 @@ impl Component for App {
             color_generator: ColorGenerator::new(),
             sidebar_open: false,
             highlighted_variant: None,
+            selected_variants: Vec::new(),
         }
     }
 
@@ -110,6 +115,20 @@ impl Component for App {
                 self.highlighted_variant = variant;
                 true
             }
+            Msg::ToggleSelectVariant(variant) => {
+                if let Some(pos) = self.selected_variants.iter().position(|v| v == &variant) {
+                    // Already selected, remove it
+                    self.selected_variants.remove(pos);
+                } else {
+                    // Not selected, add it
+                    self.selected_variants.push(variant);
+                }
+                true
+            }
+            Msg::ClearSelection => {
+                self.selected_variants.clear();
+                true
+            }
         }
     }
 
@@ -152,7 +171,25 @@ impl Component for App {
                         is_open={self.sidebar_open}
                         color_generator={Some(self.color_generator.clone())}
                     />
-                    <div class="main-content">
+                    <div 
+                        class="main-content"
+                        onclick={ctx.link().callback(|e: MouseEvent| {
+                            // Check if click was on the background (not a bar)
+                            if let Some(target) = e.target() {
+                                if let Some(element) = target.dyn_ref::<web_sys::Element>() {
+                                    let class_name = element.class_name();
+                                    // Clear selection if clicked on main-content or chart-grid
+                                    if class_name.contains("main-content") || 
+                                       class_name.contains("chart-grid") ||
+                                       class_name.contains("chart-cell") ||
+                                       class_name.contains("chart-container") {
+                                        return Msg::ClearSelection;
+                                    }
+                                }
+                            }
+                            Msg::ClearSelection
+                        })}
+                    >
                         <GlobalControls
                             selected_metric={self.selected_metric.clone()}
                             sort_ascending={self.sort_ascending}
@@ -164,7 +201,9 @@ impl Component for App {
                             metric={self.selected_metric.clone()}
                             color_generator={Some(self.color_generator.clone())}
                             highlighted_variant={self.highlighted_variant.clone()}
+                            selected_variants={self.selected_variants.clone()}
                             on_highlight={ctx.link().callback(Msg::HighlightVariant)}
+                            on_select={ctx.link().callback(Msg::ToggleSelectVariant)}
                         />
                     </div>
                 </>
