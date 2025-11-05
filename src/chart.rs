@@ -60,15 +60,32 @@ pub fn bar_chart(props: &BarChartProps) -> Html {
                             .map(|cg| cg.get_color(&variant))
                             .unwrap_or_else(|| "#64748b".to_string());
                         
-                        // Check if this variant is highlighted
-                        let is_highlighted = props.highlighted_variant.as_ref()
-                            .map(|hv| hv == &variant)
-                            .unwrap_or(false);
-                        let is_dimmed = props.highlighted_variant.is_some() && !is_highlighted;
-                        
-                        let opacity = if is_dimmed { "0.3" } else { "1.0" };
-                        let stroke = if is_highlighted { "#ffffff" } else { "none" };
-                        let stroke_width = if is_highlighted { "3" } else { "0" };
+                        // Determine highlighting level
+                        let (opacity, stroke, stroke_width) = if let Some(highlighted) = &props.highlighted_variant {
+                            let is_exact_match = highlighted == &variant;
+                            
+                            let is_same_family = props.color_generator.as_ref()
+                                .map(|cg| {
+                                    let highlighted_family = cg.get_tool_family(highlighted);
+                                    let current_family = cg.get_tool_family(&variant);
+                                    highlighted_family == current_family
+                                })
+                                .unwrap_or(false);
+                            
+                            if is_exact_match {
+                                // Level 1: Exact match - full highlight with white border
+                                ("1.0", "#ffffff", "3")
+                            } else if is_same_family {
+                                // Level 2: Same family - medium highlight with subtle border
+                                ("0.7", "#ffffff", "1.5")
+                            } else {
+                                // Level 3: Other - dimmed
+                                ("0.25", "none", "0")
+                            }
+                        } else {
+                            // No highlight - normal state
+                            ("1.0", "none", "0")
+                        };
                         
                         let variant_clone = variant.clone();
                         let on_highlight = props.on_highlight.clone();

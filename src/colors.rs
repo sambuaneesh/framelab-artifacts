@@ -75,6 +75,11 @@ impl ColorGenerator {
         }
     }
 
+    pub fn get_tool_family(&self, tool_variant: &str) -> String {
+        let parts: Vec<&str> = tool_variant.split(" (").collect();
+        parts.get(0).unwrap_or(&"").to_string()
+    }
+
     fn hash_string(s: &str) -> u32 {
         s.bytes().fold(0u32, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u32))
     }
