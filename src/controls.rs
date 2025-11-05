@@ -13,6 +13,7 @@ pub struct GlobalControlsProps {
 pub fn global_controls(props: &GlobalControlsProps) -> Html {
     let on_metric_change = props.on_metric_change.clone();
     let metric_change = Callback::from(move |e: Event| {
+        e.stop_propagation(); // Prevent clearing selection when changing metric
         let target = e.target_dyn_into::<web_sys::HtmlSelectElement>();
         if let Some(select) = target {
             on_metric_change.emit(select.value());
@@ -24,7 +25,9 @@ pub fn global_controls(props: &GlobalControlsProps) -> Html {
     let sort_desc = on_sort_change.clone();
 
     html! {
-        <div class="controls">
+        <div class="controls" onclick={Callback::from(|e: MouseEvent| {
+            e.stop_propagation(); // Prevent clearing selection when using controls
+        })}>
             <div class="control-group">
                 <label>{"Metric:"}</label>
                 <select onchange={metric_change} value={props.selected_metric.clone()}>

@@ -31,7 +31,9 @@ pub fn sidebar(props: &SidebarProps) -> Html {
     html! {
         <>
             <div class={overlay_class} onclick={on_overlay_click}></div>
-            <div class={sidebar_class}>
+            <div class={sidebar_class} onclick={Callback::from(|e: MouseEvent| {
+                e.stop_propagation(); // Prevent clearing selection when using sidebar
+            })}>
                 <div class="sidebar-header">
                     <h3>{"Tools & Variants"}</h3>
                     <button class="sidebar-close" onclick={on_close_click}>{"×"}</button>

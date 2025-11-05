@@ -174,11 +174,25 @@ impl Component for App {
                     <div 
                         class="main-content"
                         onclick={ctx.link().callback(|e: MouseEvent| {
-                            // Check if click was on the background (not a bar)
+                            // Check if click was on the background (not a bar or control element)
                             if let Some(target) = e.target() {
                                 if let Some(element) = target.dyn_ref::<web_sys::Element>() {
                                     let class_name = element.class_name();
-                                    // Clear selection if clicked on main-content or chart-grid
+                                    let tag_name = element.tag_name().to_lowercase();
+                                    
+                                    // Don't clear if clicking on controls, dropdowns, or interactive elements
+                                    if class_name.contains("controls") ||
+                                       class_name.contains("control-group") ||
+                                       tag_name == "select" ||
+                                       tag_name == "option" ||
+                                       tag_name == "input" ||
+                                       tag_name == "label" ||
+                                       tag_name == "button" {
+                                        // Don't clear selection - user is interacting with controls
+                                        return Msg::HighlightVariant(None); // No-op message
+                                    }
+                                    
+                                    // Clear selection only if clicked on empty canvas areas
                                     if class_name.contains("main-content") || 
                                        class_name.contains("chart-grid") ||
                                        class_name.contains("chart-cell") ||
