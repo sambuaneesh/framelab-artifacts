@@ -15,6 +15,7 @@ pub enum Msg {
     ChangeSortOrder(bool),
     ToggleSidebar,
     CloseSidebar,
+    HighlightVariant(Option<String>),
 }
 
 pub struct App {
@@ -26,6 +27,7 @@ pub struct App {
     sort_ascending: bool,
     color_generator: ColorGenerator,
     sidebar_open: bool,
+    highlighted_variant: Option<String>,
 }
 
 impl Component for App {
@@ -54,6 +56,7 @@ impl Component for App {
             sort_ascending: false,
             color_generator: ColorGenerator::new(),
             sidebar_open: false,
+            highlighted_variant: None,
         }
     }
 
@@ -101,6 +104,10 @@ impl Component for App {
             }
             Msg::CloseSidebar => {
                 self.sidebar_open = false;
+                true
+            }
+            Msg::HighlightVariant(variant) => {
+                self.highlighted_variant = variant;
                 true
             }
         }
@@ -156,6 +163,8 @@ impl Component for App {
                             data={filtered}
                             metric={self.selected_metric.clone()}
                             color_generator={Some(self.color_generator.clone())}
+                            highlighted_variant={self.highlighted_variant.clone()}
+                            on_highlight={ctx.link().callback(Msg::HighlightVariant)}
                         />
                     </div>
                 </>

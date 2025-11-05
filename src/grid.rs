@@ -9,6 +9,9 @@ pub struct ChartGridProps {
     pub metric: String,
     #[prop_or_default]
     pub color_generator: Option<ColorGenerator>,
+    #[prop_or_default]
+    pub highlighted_variant: Option<String>,
+    pub on_highlight: Callback<Option<String>>,
 }
 
 #[function_component(ChartGrid)]
@@ -29,6 +32,8 @@ pub fn chart_grid(props: &ChartGridProps) -> Html {
                                 data={case_data} 
                                 metric={props.metric.clone()}
                                 color_generator={props.color_generator.clone()}
+                                highlighted_variant={props.highlighted_variant.clone()}
+                                on_highlight={props.on_highlight.clone()}
                             />
                         </div>
                     }
