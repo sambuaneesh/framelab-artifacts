@@ -26,18 +26,18 @@ body {
 
 .sidebar {
     position: fixed;
-    left: 0;
     top: 0;
-    bottom: 0;
-    width: 280px;
-    background: #111827;
-    padding: 16px;
-    overflow-y: auto;
-    border-right: 1px solid #1f2937;
-    z-index: 1000;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #1a202c; /* Darker background */
+    border-right: 1px solid #2d3748;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1010;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
 
 .sidebar.open {
@@ -48,22 +48,51 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.sidebar-close {
-    background: transparent;
-    border: none;
-    color: #9ca3af;
-    font-size: 24px;
+.sidebar-header h3 {
+    margin: 0;
+}
+
+.sidebar-controls {
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.sidebar-controls button {
+    flex-grow: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    border-radius: 5px;
     cursor: pointer;
-    padding: 4px 8px;
-    line-height: 1;
-    transition: color 0.2s;
+    transition: background-color 0.2s;
 }
 
-.sidebar-close:hover {
-    color: #f9fafb;
+.sidebar-controls button:hover {
+    background-color: var(--hover-bg-color);
+}
+
+.sidebar-content {
+    padding: 0 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted-color);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: var(--text-color);
 }
 
 .sidebar-overlay {
@@ -149,8 +178,112 @@ body {
     transform: scale(0.98);
 }
 
+/* --- Modal Styles --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #2d3748; /* Solid background color */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    position: relative;
+    max-width: 800px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--text-muted-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* --- Averaging Modal Specifics --- */
+.averaging-modal h2 {
+    margin-top: 0;
+}
+
+.averaging-modal .content-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.averaging-modal .column {
+    flex: 1;
+    min-width: 0;
+}
+
+.variant-selection-list {
+    max-height: 40vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 15px 0;
+}
+
+.model-group h4 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+    font-size: 1em;
+}
+
+.model-group .variant-checkbox {
+    padding-left: 10px;
+}
+
+.model-group:first-child h4 {
+    margin-top: 0;
+}
+
+.variant-checkbox {
+    display: block;
+    margin: 5px 0;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-actions button.primary {
+    background-color: #3182ce;
+    color: white;
+    border: 1px solid #3182ce;
+}
+
+/* --- Global Controls --- */
 .controls {
-    background: #111827;
+    background-color: #2d3748;
     padding: 16px 24px 16px 120px;
     border-bottom: 1px solid #1f2937;
     display: flex;

@@ -1,0 +1,97 @@
+/* --- Filter Tree General Styling --- */
+.filter-tree {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 10px 0;
+    color: #cbd5e0;
+    font-size: 0.9em;
+}
+
+.node-leaf {
+    padding-left: 20px; /* Indent leaf nodes */
+}
+
+.node-folder {
+    padding-left: 0; /* Folders are not indented */
+}
+
+.node-content {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 6px 0;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.node-content:hover {
+    background-color: #2d3748; /* A subtle hover effect */
+}
+
+.node-children {
+    padding-left: 20px; /* Indent children of a folder */
+}
+
+.node-name {
+    margin-left: 8px;
+    font-weight: 500;
+}
+
+.folder-toggle {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    color: #718096;
+}
+
+/* Spacer for aligning leaf nodes with folders */
+.node-spacer {
+    display: inline-block;
+    width: 20px; /* Same width as the folder-toggle */
+}
+
+/* --- Custom Checkbox Styling --- */
+
+.node-content input[type="checkbox"] {
+    /* Hide the default checkbox */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    /* Dimensions and appearance of the custom checkbox */
+    width: 16px;
+    height: 16px;
+    border: 2px solid #4a5568; /* Gray border */
+    border-radius: 4px;
+    margin-right: 5px;
+    cursor: pointer;
+    position: relative;
+    top: 2px;
+}
+
+/* Checked state */
+.node-content input[type="checkbox"].checked {
+    background-color: #3182ce;
+    border-color: #3182ce;
+}
+.node-content input[type="checkbox"].checked::before {
+    content: '✔';
+    font-size: 14px;
+    color: white;
+    position: absolute;
+    top: -2px;
+    left: 1px;
+}
+
+/* Partial state */
+.node-content input[type="checkbox"].partial {
+    background-color: #4a5568;
+    border-color: #4a5568;
+}
+.node-content input[type="checkbox"].partial::before {
+    content: '▬';
+    font-size: 14px;
+    color: #cbd5e0; /* Gray line for partial */
+    position: absolute;
+    top: -2px;
+    left: 2px;
+}
